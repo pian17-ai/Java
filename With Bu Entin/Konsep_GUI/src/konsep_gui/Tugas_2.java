@@ -6,7 +6,6 @@ package konsep_gui;
 
 import java.awt.TextField;
 import javax.swing.JFrame;
-import javax.swing.JTextField;
 
 /**
  *
