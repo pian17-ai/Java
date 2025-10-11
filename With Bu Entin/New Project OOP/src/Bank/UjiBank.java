@@ -11,7 +11,7 @@ import java.util.Scanner;
  * @author pian
  */
 public class UjiBank {
-
+    
     public static void main(String[] args) {
         int kesempatan = 3;
         int pilih = 5;
