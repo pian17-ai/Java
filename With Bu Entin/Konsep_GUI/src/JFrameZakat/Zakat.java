@@ -4,6 +4,7 @@
  */
 package JFrameZakat;
 
+import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 
 /**
@@ -43,12 +44,13 @@ public class Zakat extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         txtnama = new javax.swing.JTextField();
         btnreset = new java.awt.Button();
-        hasil2 = new javax.swing.JTextField();
         btnp1 = new java.awt.Button();
         btnp2 = new java.awt.Button();
         txtid = new javax.swing.JTextField();
         txtgaji = new javax.swing.JTextField();
-        hasil1 = new javax.swing.JTextField();
+        hasil2 = new javax.swing.JLabel();
+        hasil1 = new javax.swing.JLabel();
+        btnreset1 = new java.awt.Button();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -92,13 +94,20 @@ public class Zakat extends javax.swing.JFrame {
 
         txtnama.setFont(new java.awt.Font("sansserif", 0, 18)); // NOI18N
         txtnama.setName("txtnama"); // NOI18N
+        txtnama.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtnamaActionPerformed(evt);
+            }
+        });
 
         btnreset.setBackground(new java.awt.Color(153, 153, 153));
         btnreset.setFont(new java.awt.Font("Hack", 0, 14)); // NOI18N
         btnreset.setLabel("RESET");
-
-        hasil2.setFont(new java.awt.Font("sansserif", 0, 18)); // NOI18N
-        hasil2.setName("hasil2"); // NOI18N
+        btnreset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnresetActionPerformed(evt);
+            }
+        });
 
         btnp1.setBackground(new java.awt.Color(153, 153, 153));
         btnp1.setFont(new java.awt.Font("Hack", 0, 14)); // NOI18N
@@ -120,47 +129,75 @@ public class Zakat extends javax.swing.JFrame {
 
         txtid.setFont(new java.awt.Font("sansserif", 0, 18)); // NOI18N
         txtid.setName("txtid"); // NOI18N
+        txtid.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtidActionPerformed(evt);
+            }
+        });
 
         txtgaji.setFont(new java.awt.Font("sansserif", 0, 18)); // NOI18N
         txtgaji.setName("txtgaji"); // NOI18N
+        txtgaji.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtgajiActionPerformed(evt);
+            }
+        });
 
-        hasil1.setFont(new java.awt.Font("sansserif", 0, 18)); // NOI18N
-        hasil1.setName("hasil1"); // NOI18N
+        hasil2.setBackground(new java.awt.Color(153, 153, 153));
+        hasil2.setForeground(new java.awt.Color(102, 102, 102));
+        hasil2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        hasil1.setBackground(new java.awt.Color(153, 153, 153));
+        hasil1.setForeground(new java.awt.Color(102, 102, 102));
+        hasil1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        btnreset1.setActionCommand("Exit");
+        btnreset1.setBackground(new java.awt.Color(255, 0, 51));
+        btnreset1.setFont(new java.awt.Font("Hack", 0, 14)); // NOI18N
+        btnreset1.setLabel("Exit");
+        btnreset1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnreset1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(78, 78, 78)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(78, 78, 78)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtnama, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtid, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtnama, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtid, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtgaji, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtgaji, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(hasil2, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(31, 31, 31)))
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnreset1, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnp1, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnp2, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnreset, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(19, 19, 19))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(hasil2, javax.swing.GroupLayout.PREFERRED_SIZE, 619, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(61, 61, 61))
             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                    .addContainerGap(103, Short.MAX_VALUE)
-                    .addComponent(hasil1, javax.swing.GroupLayout.PREFERRED_SIZE, 619, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(60, 60, 60)))
+                    .addContainerGap(88, Short.MAX_VALUE)
+                    .addComponent(hasil1, javax.swing.GroupLayout.PREFERRED_SIZE, 483, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(211, 211, 211)))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -186,14 +223,19 @@ public class Zakat extends javax.swing.JFrame {
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(txtgaji, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 107, Short.MAX_VALUE)
-                .addComponent(hasil2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(37, 37, 37))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(hasil2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(33, 33, 33))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(btnreset1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(59, 59, 59))))
             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                    .addContainerGap(263, Short.MAX_VALUE)
-                    .addComponent(hasil1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(96, 96, 96)))
+                    .addContainerGap(273, Short.MAX_VALUE)
+                    .addComponent(hasil1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(85, 85, 85)))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -237,6 +279,22 @@ public class Zakat extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    void filterHuruf(KeyEvent a) {
+        char karakter = a.getKeyChar();
+
+        if (!((karakter >= '0') && (karakter <= '9') || (karakter == KeyEvent.VK_BACK_SPACE) || (karakter == KeyEvent.VK_DELETE))) {
+            JOptionPane.showMessageDialog(null, "masukkan Angka");
+            a.consume();
+        }
+    }
+
+    void filterAngka(KeyEvent a) {
+        if (Character.isDigit(a.getKeyChar())) {
+            JOptionPane.showMessageDialog(null, "Masukkan Huruf");
+            a.consume();
+        }
+    }
+
     private void btnp1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnp1ActionPerformed
         if (txtid.getText().trim().equals("")) {
             JOptionPane.showMessageDialog(this, "id wajib diisi");
@@ -250,23 +308,72 @@ public class Zakat extends javax.swing.JFrame {
             hasil2.setText("");
         } else if (txtgaji.getText().trim().equals("")) {
             JOptionPane.showMessageDialog(this, "gaji wajib diisi");
-                txtgaji.requestFocus();
-                hasil2.setText("");
-                hasil2.setText("");
+            txtgaji.requestFocus();
+            hasil2.setText("");
+            hasil2.setText("");
         } else {
             id = txtid.getText();
             nama = txtnama.getText();
             gaji = Double.parseDouble(txtgaji.getText());
             zakat = gaji * 0.0025;
-            
-            hasil1.setText("ID Karyawan : " +id +" Nama Karyawan : "+nama +" Gaji = "+"Rp." +String.valueOf(gaji));
-            hasil2.setText("Zakat = " +"Rp." +Double.toString(zakat));
+
+            hasil1.setText("ID Karyawan : " + id + " Nama Karyawan : " + nama + " Gaji = " + "Rp." + String.valueOf(gaji));
+            hasil2.setText("Zakat = " + "Rp." + Double.toString(zakat));
         }
     }//GEN-LAST:event_btnp1ActionPerformed
 
     private void btnp2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnp2ActionPerformed
+        if (txtid.getText().trim().equals("")) {
+            JOptionPane.showMessageDialog(this, "id wajib diisi");
+            hasil1.setText("");
+            hasil2.setText("");
+        } else if (txtnama.getText().trim().equals("")) {
+            JOptionPane.showMessageDialog(this, "nama wajib diisi");
+            hasil1.setText("");
+            hasil2.setText("");
+        } else if (txtgaji.getText().trim().equals("")) {
+            JOptionPane.showMessageDialog(this, "gaji wajib diisi");
+            hasil1.setText("");
+            hasil2.setText("");
+        } else {
+            id = txtid.getText();
+            nama = txtnama.getText();
+            gaji = Double.parseDouble(txtgaji.getText());
+            zakat = gaji * 0.025;
 
+            JOptionPane.showMessageDialog(null, "ID Karyawan : " + id
+                    + "\nnama karyawan : " + nama
+                    + "\ngaji = " + "Rp." + String.valueOf(gaji) + "\nzakat = " + "Rp." + Double.toString(zakat));
+
+        }
     }//GEN-LAST:event_btnp2ActionPerformed
+
+    private void txtidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtidActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtidActionPerformed
+
+    private void txtnamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtnamaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtnamaActionPerformed
+
+    private void txtgajiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtgajiActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtgajiActionPerformed
+
+    private void btnresetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnresetActionPerformed
+        txtid.setText("");
+        txtnama.setText("");
+        txtgaji.setText("");
+        hasil1.setText("");
+        hasil2.setText("");
+// TODO add your handling code here:
+    }//GEN-LAST:event_btnresetActionPerformed
+
+    private void btnreset1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnreset1ActionPerformed
+        int jawab = JOptionPane.showConfirmDialog(null, "Yakin Keluar?", "Konfirmasi", JOptionPane.YES_NO_CANCEL_OPTION);
+        if (jawab == JOptionPane.YES_OPTION);
+        System.exit(0);        // TODO add your handling code here:
+    }//GEN-LAST:event_btnreset1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -297,8 +404,9 @@ public class Zakat extends javax.swing.JFrame {
     private java.awt.Button btnp1;
     private java.awt.Button btnp2;
     private java.awt.Button btnreset;
-    private javax.swing.JTextField hasil1;
-    private javax.swing.JTextField hasil2;
+    private java.awt.Button btnreset1;
+    private javax.swing.JLabel hasil1;
+    private javax.swing.JLabel hasil2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
