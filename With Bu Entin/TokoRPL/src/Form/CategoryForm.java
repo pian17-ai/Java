@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -29,6 +30,106 @@ public class CategoryForm extends javax.swing.JDialog {
     public CategoryForm() {
         initComponents();
         connDB = ConnectionClass.connectionDB();
+    }
+
+    public void clearData() {
+        txtId.setText("");
+        txtName.setText("");
+        txtSearch.setText("");
+    }
+
+    public void showData() {
+        try {
+            String query = "SELECT * from kategori WHERE id=?";
+            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//            ps = connDB.prepareStatement(query);
+            ps.setString(1, txtId.getText());
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                txtName.setText(rs.getString("nama"));
+            } else {
+
+            }
+        } catch (SQLException e) {
+            System.out.println("Show data error : " + e.getMessage());
+        }
+    }
+
+    public void insertData() {
+        try {
+            String query = "INSERT into kategori values(?,?)";
+            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps.setString(1, null);
+            ps.setString(2, txtName.getText());
+            ps.executeUpdate();
+
+            JOptionPane.showMessageDialog(null, "Add data success");
+
+        } catch (SQLException e) {
+            System.out.println("Insert error : " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Insert data error");
+        }
+    }
+
+    public void updateData() {
+        try {
+            String query = "UPDATE kategori set nama=? where id=?";
+            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps.setString(2, txtId.getText());
+            ps.setString(1, txtName.getText());
+            ps.executeUpdate();
+
+            JOptionPane.showMessageDialog(null, "Update data success");
+
+        } catch (SQLException e) {
+            System.out.println("Insert error : " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Update data error");
+        }
+    }
+
+    public void deleteData() {
+        try {
+            String query = "DELETE FROM kategori WHERE id=?";
+            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps.setString(1, txtId.getText());
+//            ps.setString(1, txtName.getText());
+            ps.executeUpdate();
+
+            JOptionPane.showMessageDialog(null, "Delete data success");
+
+        } catch (SQLException e) {
+            System.out.println("Insert error : " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Delete data error");
+        }
+    }
+    
+    public DefaultTableModel getModelSearch(String search) {
+        Object[][]data = null;
+        
+        try {
+            String query = "SELECT * from kategori where id LIKE? and nama LIKE?";
+            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps.setString(1, "%" + search + "%");
+            ps.setString(2, "%" + search + "%");
+            rs.last();
+            int i = rs.getRow();
+            rs.beforeFirst();
+            
+            data = new Object[i][2];
+            i = 0;
+            while (rs.next()) {
+                data[i][0] = rs.getString("id");
+                data[i][0] = rs.getString("nama");
+                i++;
+            }
+        } catch (SQLException e) {
+            System.out.println("Model Search error : " + e.getMessage());
+        }
+        
+        String[] titleTable = {"ID", "NAMA"};
+        tabelModel = new DefaultTableModel(data, titleTable);
+        return tabelModel;
     }
 
     /**
@@ -147,6 +248,11 @@ public class CategoryForm extends javax.swing.JDialog {
                 txtSearchActionPerformed(evt);
             }
         });
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchKeyReleased(evt);
+            }
+        });
 
         tableCategory.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -159,6 +265,11 @@ public class CategoryForm extends javax.swing.JDialog {
                 "Id", "Category"
             }
         ));
+        tableCategory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableCategoryMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tableCategory);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -168,9 +279,9 @@ public class CategoryForm extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(77, 77, 77)
                 .addComponent(jLabel5)
-                .addGap(63, 63, 63)
+                .addGap(57, 57, 57)
                 .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
+                .addGap(56, 56, 56)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -278,32 +389,45 @@ public class CategoryForm extends javax.swing.JDialog {
             while (rs.next()) {
                 data[i][0] = rs.getString("id");
                 data[i][1] = rs.getString("nama");
+                i++;
             }
         } catch (SQLException e) {
             System.out.println("category model error " + e.getMessage());
         }
-        
+
         String[] judulTabel = {"ID", "NAMA KATEGORI"};
         tabelModel = new DefaultTableModel(data, judulTabel);
-        
+
         return tabelModel;
     }
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
-        
+        insertData();
+        tableCategory.setModel(getModelKategori());
+        clearData();
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
+        updateData();
+        tableCategory.setModel(getModelKategori());
+        clearData();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         // TODO add your handling code here:
+        clearData();
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         // TODO add your handling code here:
+        int jawab = JOptionPane.showConfirmDialog(null, "Are you sure for delete?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (jawab == JOptionPane.YES_OPTION) {
+        deleteData();
+        clearData();
+    }
+        tableCategory.setModel(getModelKategori());
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void txtNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNameActionPerformed
@@ -321,7 +445,19 @@ public class CategoryForm extends javax.swing.JDialog {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
         tableCategory.setModel(getModelKategori());
+        txtId.setEditable(false);
     }//GEN-LAST:event_formWindowOpened
+
+    private void tableCategoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableCategoryMouseClicked
+        // TODO add your handling code here:
+        txtId.setText(tabelModel.getValueAt(tableCategory.getSelectedRow(), 0).toString());
+        showData();
+    }//GEN-LAST:event_tableCategoryMouseClicked
+
+    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+        // TODO add your handling code here:
+        getModelSearch();
+    }//GEN-LAST:event_txtSearchKeyReleased
 
     /**
      * @param args the command line arguments

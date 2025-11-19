@@ -20,10 +20,10 @@ public class ConnectionClass {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
 //            Class.forName("conn.mysql.jdbc.Driver");
-//            String url = "jbdc:mysql://localhost:3306/toko_pian";
+//            String url = "jdbc:mysql://localhost:3306/toko_pian";
             String url = "jdbc:mysql://localhost:3306/toko_pian?serverTimezone=UTC";
-            String user = "pma";
-            String pass = "pmapass";
+            String user = "root";
+            String pass = "gr6882899";
 
             connDB = DriverManager.getConnection(url, user, pass);
             System.out.println("Connection success");
