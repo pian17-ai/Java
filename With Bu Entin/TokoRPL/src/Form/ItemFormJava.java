@@ -15,41 +15,48 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author pian
  */
-public class CategoryForm extends javax.swing.JDialog {
+public class ItemFormJava extends javax.swing.JDialog {
 
     private PreparedStatement ps;
     private ResultSet rs;
     private final Connection connDB;
     DefaultTableModel tabelModel;
 
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(CategoryForm.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ItemFormJava.class.getName());
 
     /**
      * Creates new form CategoryForm
      */
-    public CategoryForm() {
+    public ItemFormJava() {
         initComponents();
         connDB = ConnectionClass.connectionDB();
     }
 
     public void clearData() {
         txtId.setText("");
-        txtName.setText("");
-        txtSearch.setText("");
+        txtHarga.setText("");
+        txtCari.setText("");
+//        txtIdKategori.setText("");
+        txtHarga.setText("");
+    }
+    
+    public void loadKategory() {
+        
     }
 
     public void showData() {
         try {
-            String query = "SELECT * from kategori WHERE id=?";
+            String query = "SELECT * from item WHERE id=?";
             ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 //            ps = connDB.prepareStatement(query);
             ps.setString(1, txtId.getText());
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                txtName.setText(rs.getString("nama"));
+                txtNama.setText(rs.getString("nama"));
+                txtHarga.setText(rs.getString("harga"));
             } else {
-
+                
             }
         } catch (SQLException e) {
             System.out.println("Show data error : " + e.getMessage());
@@ -58,10 +65,10 @@ public class CategoryForm extends javax.swing.JDialog {
 
     public void insertData() {
         try {
-            String query = "INSERT into kategori values(?,?)";
+            String query = "INSERT into item values(?,?)";
             ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, null);
-            ps.setString(2, txtName.getText());
+            ps.setString(2, txtHarga.getText());
             ps.executeUpdate();
 
             JOptionPane.showMessageDialog(null, "Add data success");
@@ -74,10 +81,10 @@ public class CategoryForm extends javax.swing.JDialog {
 
     public void updateData() {
         try {
-            String query = "UPDATE kategori set nama=? where id=?";
+            String query = "UPDATE item set nama=? where id=?";
             ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(2, txtId.getText());
-            ps.setString(1, txtName.getText());
+            ps.setString(1, txtHarga.getText());
             ps.executeUpdate();
 
             JOptionPane.showMessageDialog(null, "Update data success");
@@ -90,7 +97,7 @@ public class CategoryForm extends javax.swing.JDialog {
 
     public void deleteData() {
         try {
-            String query = "DELETE FROM kategori WHERE id=?";
+            String query = "DELETE FROM item WHERE id=?";
             ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, txtId.getText());
 //            ps.setString(1, txtName.getText());
@@ -108,7 +115,7 @@ public class CategoryForm extends javax.swing.JDialog {
         Object[][]data = null;
         
         try {
-            String query = "SELECT * from kategori where id LIKE? OR nama LIKE?";
+            String query = "SELECT * from item where id LIKE? OR nama LIKE?";
             ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, "%" + search + "%");
             ps.setString(2, "%" + search + "%");
@@ -152,11 +159,15 @@ public class CategoryForm extends javax.swing.JDialog {
         btnUpdate = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
-        txtName = new javax.swing.JTextField();
+        txtHarga = new javax.swing.JTextField();
         txtId = new javax.swing.JTextField();
-        txtSearch = new javax.swing.JTextField();
+        txtCari = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tableCategory = new javax.swing.JTable();
+        tableItem = new javax.swing.JTable();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        txtNama = new javax.swing.JTextField();
+        jComboBox1 = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -173,15 +184,15 @@ public class CategoryForm extends javax.swing.JDialog {
 
         jLabel3.setFont(new java.awt.Font("Fira Sans", 1, 36)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("CATEGORY FORM");
+        jLabel3.setText("Item FORM");
 
         jLabel4.setFont(new java.awt.Font("Fira Sans", 1, 24)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Id Category");
+        jLabel4.setText("Id Item");
 
         jLabel5.setFont(new java.awt.Font("Fira Sans", 1, 24)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Name Category");
+        jLabel5.setText("Nama Item");
 
         btnAdd.setFont(new java.awt.Font("Fira Sans", 1, 18)); // NOI18N
         btnAdd.setText("Add");
@@ -219,9 +230,9 @@ public class CategoryForm extends javax.swing.JDialog {
             }
         });
 
-        txtName.addActionListener(new java.awt.event.ActionListener() {
+        txtHarga.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtNameActionPerformed(evt);
+                txtHargaActionPerformed(evt);
             }
         });
 
@@ -231,67 +242,88 @@ public class CategoryForm extends javax.swing.JDialog {
             }
         });
 
-        txtSearch.addActionListener(new java.awt.event.ActionListener() {
+        txtCari.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSearchActionPerformed(evt);
+                txtCariActionPerformed(evt);
             }
         });
-        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtCari.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                txtSearchKeyReleased(evt);
+                txtCariKeyReleased(evt);
             }
         });
 
-        tableCategory.setModel(new javax.swing.table.DefaultTableModel(
+        tableItem.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Id", "Category"
+                "Id", "Id Kategori", "Nama Item", "Harga"
             }
         ));
-        tableCategory.addMouseListener(new java.awt.event.MouseAdapter() {
+        tableItem.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableCategoryMouseClicked(evt);
+                tableItemMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(tableCategory);
+        jScrollPane1.setViewportView(tableItem);
+
+        jLabel6.setFont(new java.awt.Font("Fira Sans", 1, 24)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setText("Id Kategori");
+
+        jLabel7.setFont(new java.awt.Font("Fira Sans", 1, 24)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel7.setText("Harga");
+
+        txtNama.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtNamaActionPerformed(evt);
+            }
+        });
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(29, 29, 29)
+                .addGap(21, 21, 21)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 830, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(60, 60, 60))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addGap(381, 381, 381))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(77, 77, 77)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txtId, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(jLabel5)
-                        .addGap(57, 57, 57)
-                        .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(56, 56, 56)
-                .addComponent(jLabel2)
-                .addGap(18, 18, 18)
-                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel6))
+                    .addComponent(jLabel7))
+                .addGap(58, 58, 58)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(42, 42, 42)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtCari, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtHarga, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtId, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                    .addContainerGap(356, Short.MAX_VALUE)
-                    .addComponent(jLabel3)
-                    .addGap(349, 349, 349)))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(77, 77, 77)
@@ -303,34 +335,46 @@ public class CategoryForm extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(113, 113, 113)
                 .addComponent(txtId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(29, 29, 29)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
-                .addGap(46, 46, 46)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel6)
+                .addGap(66, 66, 66)
+                .addComponent(btnAdd)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnUpdate)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnCancel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnDelete)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(jLabel3)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnAdd)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(txtCari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(79, 79, 79))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(88, 88, 88)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnUpdate)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnCancel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnDelete))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 324, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(37, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGap(26, 26, 26)
-                    .addComponent(jLabel3)
-                    .addContainerGap(530, Short.MAX_VALUE)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel7)
+                            .addComponent(txtHarga, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 324, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(106, 106, 106)
                     .addComponent(jLabel4)
-                    .addContainerGap(464, Short.MAX_VALUE)))
+                    .addContainerGap(528, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -357,7 +401,7 @@ public class CategoryForm extends javax.swing.JDialog {
         Object[][] data = null;
 
         try {
-            String query = "SELECT * from kategori";
+            String query = "SELECT * from item";
 
             ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             rs = ps.executeQuery();
@@ -365,20 +409,22 @@ public class CategoryForm extends javax.swing.JDialog {
             int i = rs.getRow();
             rs.beforeFirst();
 
-            data = new Object[i][2];
+            data = new Object[i][4];
 
             i = 0;
 
             while (rs.next()) {
                 data[i][0] = rs.getString("id");
-                data[i][1] = rs.getString("nama");
+                data[i][1] = rs.getString("kategori_id");
+                data[i][2] = rs.getString("nama");
+                data[i][3] = rs.getString("harga");
                 i++;
             }
         } catch (SQLException e) {
             System.out.println("category model error " + e.getMessage());
         }
 
-        String[] judulTabel = {"ID", "NAMA KATEGORI"};
+        String[] judulTabel = {"ID", "KATEGORI ID", "NAMA", "HARGA"};
         tabelModel = new DefaultTableModel(data, judulTabel);
 
         return tabelModel;
@@ -387,14 +433,14 @@ public class CategoryForm extends javax.swing.JDialog {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
         insertData();
-        tableCategory.setModel(getModelKategori());
+        tableItem.setModel(getModelKategori());
         clearData();
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
         updateData();
-        tableCategory.setModel(getModelKategori());
+        tableItem.setModel(getModelKategori());
         clearData();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
@@ -410,41 +456,45 @@ public class CategoryForm extends javax.swing.JDialog {
         deleteData();
         clearData();
     }
-        tableCategory.setModel(getModelKategori());
+        tableItem.setModel(getModelKategori());
     }//GEN-LAST:event_btnDeleteActionPerformed
 
-    private void txtNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNameActionPerformed
+    private void txtHargaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHargaActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtNameActionPerformed
+    }//GEN-LAST:event_txtHargaActionPerformed
 
     private void txtIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIdActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtIdActionPerformed
 
-    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+    private void txtCariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCariActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtSearchActionPerformed
+    }//GEN-LAST:event_txtCariActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        tableCategory.setModel(getModelKategori());
+        tableItem.setModel(getModelKategori());
         txtId.setEditable(false);
     }//GEN-LAST:event_formWindowOpened
 
-    private void tableCategoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableCategoryMouseClicked
+    private void tableItemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableItemMouseClicked
         // TODO add your handling code here:
-        txtId.setText(tabelModel.getValueAt(tableCategory.getSelectedRow(), 0).toString());
+        txtId.setText(tabelModel.getValueAt(tableItem.getSelectedRow(), 0).toString());
         showData();
-    }//GEN-LAST:event_tableCategoryMouseClicked
+    }//GEN-LAST:event_tableItemMouseClicked
 
-    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+    private void txtCariKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCariKeyReleased
         // TODO add your handling code here:
-        if (txtSearch.getText().trim().equals("")) {
-            tableCategory.setModel(getModelKategori());
+        if (txtCari.getText().trim().equals("")) {
+            tableItem.setModel(getModelKategori());
         } else {
-            tableCategory.setModel(getModelSearch(txtSearch.getText()));
+            tableItem.setModel(getModelSearch(txtCari.getText()));
         }
-    }//GEN-LAST:event_txtSearchKeyReleased
+    }//GEN-LAST:event_txtCariKeyReleased
+
+    private void txtNamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNamaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNamaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -471,7 +521,7 @@ public class CategoryForm extends javax.swing.JDialog {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                CategoryForm dialog = new CategoryForm();
+                ItemFormJava dialog = new ItemFormJava();
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -488,15 +538,19 @@ public class CategoryForm extends javax.swing.JDialog {
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnUpdate;
+    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable tableCategory;
+    private javax.swing.JTable tableItem;
+    private javax.swing.JTextField txtCari;
+    private javax.swing.JTextField txtHarga;
     private javax.swing.JTextField txtId;
-    private javax.swing.JTextField txtName;
-    private javax.swing.JTextField txtSearch;
+    private javax.swing.JTextField txtNama;
     // End of variables declaration//GEN-END:variables
 }
