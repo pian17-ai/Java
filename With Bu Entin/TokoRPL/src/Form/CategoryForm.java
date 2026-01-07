@@ -456,7 +456,7 @@ public class CategoryForm extends javax.swing.JDialog {
 
     private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
         // TODO add your handling code here:
-        getModelSearch();
+//        getModelSearch();
     }//GEN-LAST:event_txtSearchKeyReleased
 
     /**
