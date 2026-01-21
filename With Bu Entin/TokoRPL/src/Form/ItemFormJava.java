@@ -21,6 +21,8 @@ public class ItemFormJava extends javax.swing.JDialog {
     private ResultSet rs;
     private final Connection connDB;
     DefaultTableModel tabelModel;
+    private DefaultTableModel tableModel;
+
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ItemFormJava.class.getName());
 
@@ -32,113 +34,111 @@ public class ItemFormJava extends javax.swing.JDialog {
         connDB = ConnectionClass.connectionDB();
     }
 
-    public void clearData() {
-        txtId.setText("");
-        txtHarga.setText("");
-        txtCari.setText("");
-//        txtIdKategori.setText("");
-        txtHarga.setText("");
-    }
-    
-    public void loadKategory() {
+    public DefaultTableModel getModelItem(){
         
-    }
-
-    public void showData() {
-        try {
-            String query = "SELECT * from item WHERE id=?";
-            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-//            ps = connDB.prepareStatement(query);
-            ps.setString(1, txtId.getText());
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                txtNama.setText(rs.getString("nama"));
-                txtHarga.setText(rs.getString("harga"));
-            } else {
-                
-            }
-        } catch (SQLException e) {
-            System.out.println("Show data error : " + e.getMessage());
-        }
-    }
-
-    public void insertData() {
-        try {
-            String query = "INSERT into item values(?,?)";
-            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setString(1, null);
-            ps.setString(2, txtHarga.getText());
-            ps.executeUpdate();
-
-            JOptionPane.showMessageDialog(null, "Add data success");
-
-        } catch (SQLException e) {
-            System.out.println("Insert error : " + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Insert data error");
-        }
-    }
-
-    public void updateData() {
-        try {
-            String query = "UPDATE item set nama=? where id=?";
-            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setString(2, txtId.getText());
-            ps.setString(1, txtHarga.getText());
-            ps.executeUpdate();
-
-            JOptionPane.showMessageDialog(null, "Update data success");
-
-        } catch (SQLException e) {
-            System.out.println("Insert error : " + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Update data error");
-        }
-    }
-
-    public void deleteData() {
-        try {
-            String query = "DELETE FROM item WHERE id=?";
-            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setString(1, txtId.getText());
-//            ps.setString(1, txtName.getText());
-            ps.executeUpdate();
-
-            JOptionPane.showMessageDialog(null, "Delete data success");
-
-        } catch (SQLException e) {
-            System.out.println("Insert error : " + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Delete data error");
-        }
-    }
-    
-    public DefaultTableModel getModelSearch(String search) {
-        Object[][]data = null;
+        Object [][] data = null;
         
-        try {
-            String query = "SELECT * from item where id LIKE? OR nama LIKE?";
-            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setString(1, "%" + search + "%");
-            ps.setString(2, "%" + search + "%");
+        try{
+           String query = "SELECT kategori.nama AS nama_kategori,item.id,item.nama,item.harga "
+                   + "FROM kategori INNER JOIN item "
+                   + "ON kategori.id= item.kategori_id  "
+                   + "ORDER BY item.id";
+           
+            ps = connDB.prepareStatement(query);
             rs = ps.executeQuery();
             rs.last();
             int i = rs.getRow();
             rs.beforeFirst();
             
-            data = new Object[i][2];
+            data = new Object [i][4];
+            
             i = 0;
-            while (rs.next()) {
-                data[i][0] = rs.getString("id");
-                data[i][1] = rs.getString("nama");
+            
+            while(rs.next()){
+                data[i][0] = rs.getString("nama_kategori");
+                data[i][1] = rs.getString("id");
+                data[i][2] = rs.getString("nama");
+                data[i][3] = rs.getString("harga");
                 i++;
             }
-        } catch (SQLException e) {
-            System.out.println("Model Search error : " + e.getMessage());
-        }
         
-        String[] titleTable = {"ID", "NAMA"};
-        tabelModel = new DefaultTableModel(data, titleTable);
+        } catch(SQLException e) {
+            System.out.println("model item error" + e.getMessage());
+        
+        }
+        String[] judulTabel = {"NAMA KATEGORI", "ID ITEM", "NAMA ITEM", "HARGA"};
+        tabelModel = new DefaultTableModel(data, judulTabel);
         return tabelModel;
     }
+             
+
+    public void comboKategori(){
+        
+        try{
+            String query = "SELECT id, nama FROM kategori";
+            ps = connDB.prepareStatement(query);
+            rs = ps.executeQuery();
+            
+            comboCategory.removeAllItems();
+            comboCategory.addItem("Pilih");
+            
+            while(rs.next()) {
+                comboCategory.addItem(rs.getString("id") +"-" +rs.getString("nama"));
+            }
+            
+        }catch(SQLException e) {
+            System.out.println("combo error" +e.getMessage());
+        }
+    }
+    
+    public void clearData() {
+        comboCategory.setSelectedIndex(0);
+        txtId.setText("");
+        txtNama.setText("");
+        txtHarga.setText("");
+        txtCari.setText("");
+    }
+    
+    public void showData() {
+        Object[][] data = null;
+        
+        try {
+            String query = "SELECT kategori.nama AS nama_kategori, item.kategori_id, item.nama, item.harga, FROM kategori INNER JOIN item ON kategori.id = item.kategori_id WHERE item.id=?";
+            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps.setString(1, txtId.getText());
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                comboCategory.setSelectedItem(rs.getString("kategori_id") + "-" + rs.getString("nama_kategori"));
+                
+                txtNama.setText(rs.getString("nama"));
+                txtHarga.setText(rs.getString("harga"));
+            } else {
+                clearData();
+            }
+        } catch(SQLException e) {
+            System.out.println("Show data error : " + e.getMessage());
+        }
+    }
+        
+//        public void showData() {
+//        try {
+//            String query = "SELECT * from kategori WHERE id=?";
+//            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+////            ps = connDB.prepareStatement(query);
+//            ps.setString(1, txtId.getText());
+//            rs = ps.executeQuery();
+//
+//            if (rs.next()) {
+//                txtNama.setText(rs.getString("nama"));
+//            } else {
+//
+//            }
+//        } catch (SQLException e) {
+//            System.out.println("Show data error : " + e.getMessage());
+//        }
+//    }
+
 //    
 
     /**
@@ -167,7 +167,7 @@ public class ItemFormJava extends javax.swing.JDialog {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         txtNama = new javax.swing.JTextField();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        comboCategory = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -285,7 +285,7 @@ public class ItemFormJava extends javax.swing.JDialog {
             }
         });
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboCategory.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -322,7 +322,7 @@ public class ItemFormJava extends javax.swing.JDialog {
                         .addComponent(txtCari, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(txtHarga, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtId, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboCategory, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -358,7 +358,7 @@ public class ItemFormJava extends javax.swing.JDialog {
                         .addGap(79, 79, 79))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(88, 88, 88)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(comboCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
@@ -396,67 +396,35 @@ public class ItemFormJava extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
-    public DefaultTableModel getModelKategori() {
-        Object[][] data = null;
 
-        try {
-            String query = "SELECT * from item";
-
-            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = ps.executeQuery();
-            rs.last();
-            int i = rs.getRow();
-            rs.beforeFirst();
-
-            data = new Object[i][4];
-
-            i = 0;
-
-            while (rs.next()) {
-                data[i][0] = rs.getString("id");
-                data[i][1] = rs.getString("kategori_id");
-                data[i][2] = rs.getString("nama");
-                data[i][3] = rs.getString("harga");
-                i++;
-            }
-        } catch (SQLException e) {
-            System.out.println("category model error " + e.getMessage());
-        }
-
-        String[] judulTabel = {"ID", "KATEGORI ID", "NAMA", "HARGA"};
-        tabelModel = new DefaultTableModel(data, judulTabel);
-
-        return tabelModel;
-    }
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
-        insertData();
-        tableItem.setModel(getModelKategori());
-        clearData();
+//        insertData();
+//        tableItem.setModel(getModelKategori());
+//        clearData();
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
-        updateData();
-        tableItem.setModel(getModelKategori());
-        clearData();
+//        updateData();
+//        tableItem.setModel(getModelKategori());
+//        clearData();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         // TODO add your handling code here:
-        clearData();
+//        clearData();
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         // TODO add your handling code here:
         int jawab = JOptionPane.showConfirmDialog(null, "Are you sure for delete?", "Confirm", JOptionPane.YES_NO_OPTION);
         if (jawab == JOptionPane.YES_OPTION) {
-        deleteData();
-        clearData();
-    }
-        tableItem.setModel(getModelKategori());
+//            deleteData();
+//            clearData();
+        }
+//        tableItem.setModel(getModelKategori());
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void txtHargaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHargaActionPerformed
@@ -473,8 +441,8 @@ public class ItemFormJava extends javax.swing.JDialog {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        tableItem.setModel(getModelKategori());
-        txtId.setEditable(false);
+//        tableItem.setModel(getModelKategori());
+        comboKategori();
     }//GEN-LAST:event_formWindowOpened
 
     private void tableItemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableItemMouseClicked
@@ -486,9 +454,9 @@ public class ItemFormJava extends javax.swing.JDialog {
     private void txtCariKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCariKeyReleased
         // TODO add your handling code here:
         if (txtCari.getText().trim().equals("")) {
-            tableItem.setModel(getModelKategori());
+//            tableItem.setModel(getModelKategori());
         } else {
-            tableItem.setModel(getModelSearch(txtCari.getText()));
+//            tableItem.setModel(getModelSearch(txtCari.getText()));
         }
     }//GEN-LAST:event_txtCariKeyReleased
 
@@ -538,7 +506,7 @@ public class ItemFormJava extends javax.swing.JDialog {
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnUpdate;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> comboCategory;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
