@@ -86,7 +86,7 @@ public class ItemFormJava extends javax.swing.JDialog {
                 comboCategory.addItem(rs.getString("id") +"-" +rs.getString("nama"));
             }
             
-        }catch(SQLException e) {
+        } catch(SQLException e) {
             System.out.println("combo error" +e.getMessage());
         }
     }
