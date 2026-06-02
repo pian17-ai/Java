@@ -27,8 +27,11 @@ public class StockForm extends javax.swing.JDialog {
     public StockForm() {
         initComponents();
         connDB = ConnectionClass.connectionDB();
-        
+
         tableUser.setModel(getStock());
+        comboItem();
+
+        txtId.setEditable(false);
     }
     
     public DefaultTableModel getStock() {
@@ -49,8 +52,7 @@ public class StockForm extends javax.swing.JDialog {
         int row = rs.getRow();
         rs.beforeFirst();
 
-        // 5 kolom
-        data = new Object[row][5];
+        data = new Object[row][4];
 
         int i = 0;
 
@@ -74,6 +76,284 @@ public class StockForm extends javax.swing.JDialog {
     };
 
     tabelModel = new DefaultTableModel(data, judulTabel);
+
+    return tabelModel;
+}
+    
+    public void comboItem() {
+
+    try {
+
+        String query = "SELECT id, nama FROM item";
+
+        ps = connDB.prepareStatement(query);
+        rs = ps.executeQuery();
+
+        comboLevel.removeAllItems();
+        comboLevel.addItem("Pilih");
+
+        while (rs.next()) {
+
+            comboLevel.addItem(
+                    rs.getString("id")
+                    + "-" +
+                    rs.getString("nama")
+            );
+
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Combo item error : "
+                + e.getMessage());
+
+    }
+}
+    
+    public void clearData() {
+
+    txtId.setText("");
+    txtUsername.setText("");
+    txtPassword.setText("");
+    txtSearch.setText("");
+
+    comboLevel.setSelectedIndex(0);
+
+}
+    
+    public void showData() {
+
+    try {
+
+        String query =
+                """
+                SELECT stok.*,
+                       item.nama AS nama_item
+                FROM stok
+                INNER JOIN item
+                ON item.id = stok.item_id
+                WHERE stok.id=?
+                """;
+
+        ps = connDB.prepareStatement(
+                query,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
+
+        ps.setString(1, txtId.getText());
+
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+
+            comboLevel.setSelectedItem(
+                    rs.getString("item_id")
+                    + "-"
+                    + rs.getString("nama_item")
+            );
+
+            txtUsername.setText(
+                    rs.getString("quantity"));
+
+            txtPassword.setText(
+                    rs.getString("tanggal_update"));
+
+        } else {
+
+            clearData();
+
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Show data error : "
+                + e.getMessage());
+
+    }
+
+}
+    
+    public void insertData() {
+
+    try {
+
+        String itemId =
+                comboLevel.getSelectedItem()
+                .toString()
+                .split("-")[0];
+
+        String query =
+                "INSERT INTO stok VALUES(?,?,?,?)";
+
+        ps = connDB.prepareStatement(query);
+
+        ps.setString(1, null);
+        ps.setString(2, itemId);
+        ps.setString(3, txtUsername.getText());
+        ps.setString(4, txtPassword.getText());
+
+        ps.executeUpdate();
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Add data success");
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Insert error : "
+                + e.getMessage());
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Insert data error");
+    }
+
+}
+    
+    public void updateData() {
+
+    try {
+
+        String itemId =
+                comboLevel.getSelectedItem()
+                .toString()
+                .split("-")[0];
+
+        String query =
+                """
+                UPDATE stok
+                SET item_id=?,
+                    quantity=?,
+                    tanggal_update=?
+                WHERE id=?
+                """;
+
+        ps = connDB.prepareStatement(query);
+
+        ps.setString(1, itemId);
+        ps.setString(2, txtUsername.getText());
+        ps.setString(3, txtPassword.getText());
+        ps.setString(4, txtId.getText());
+
+        ps.executeUpdate();
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Update success");
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Update error : "
+                + e.getMessage());
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Update error");
+
+    }
+
+}
+    
+    public void deleteData() {
+
+    try {
+
+        String query =
+                "DELETE FROM stok WHERE id=?";
+
+        ps = connDB.prepareStatement(query);
+
+        ps.setString(1, txtId.getText());
+
+        ps.executeUpdate();
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Delete success");
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Delete error : "
+                + e.getMessage());
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Delete error");
+
+    }
+
+}
+    
+    public DefaultTableModel getModelSearch(String search) {
+
+    Object[][] data = null;
+
+    try {
+
+        String query =
+                """
+                SELECT stok.*,
+                       item.nama AS nama_item
+                FROM stok
+                INNER JOIN item
+                ON item.id = stok.item_id
+                WHERE stok.id LIKE ?
+                   OR item.nama LIKE ?
+                   OR stok.quantity LIKE ?
+                """;
+
+        ps = connDB.prepareStatement(
+                query,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
+
+        ps.setString(1, "%" + search + "%");
+        ps.setString(2, "%" + search + "%");
+        ps.setString(3, "%" + search + "%");
+
+        rs = ps.executeQuery();
+
+        rs.last();
+        int i = rs.getRow();
+        rs.beforeFirst();
+
+        data = new Object[i][4];
+
+        i = 0;
+
+        while (rs.next()) {
+
+            data[i][0] = rs.getString("id");
+            data[i][1] = rs.getString("item_id");
+            data[i][2] = rs.getString("quantity");
+            data[i][3] = rs.getString("tanggal_update");
+
+            i++;
+
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Search error : "
+                + e.getMessage());
+
+    }
+
+    String[] judul = {
+        "ID",
+        "ITEM ID",
+        "QUANTITY",
+        "UPDATE DATE"
+    };
+
+    tabelModel =
+            new DefaultTableModel(data, judul);
 
     return tabelModel;
 }
@@ -116,7 +396,7 @@ public class StockForm extends javax.swing.JDialog {
 
         jLabel3.setFont(new java.awt.Font("Fira Sans", 1, 36)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("User FORM");
+        jLabel3.setText("Stock FORM");
 
         jLabel4.setFont(new java.awt.Font("Fira Sans", 1, 24)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
@@ -214,12 +494,11 @@ public class StockForm extends javax.swing.JDialog {
                                 .addGap(45, 45, 45)
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE))
+                                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(28, 28, 28)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 830, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 830, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -309,14 +588,27 @@ public class StockForm extends javax.swing.JDialog {
 
     private void tableUserMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableUserMouseClicked
         // TODO add your handling code here:
+        txtId.setText(
+                tabelModel.getValueAt(
+                        tableUser.getSelectedRow(),
+                        0
+                ).toString());
+
+        showData();
     }//GEN-LAST:event_tableUserMouseClicked
 
     private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
         // TODO add your handling code here:
         if (txtSearch.getText().trim().equals("")) {
-            //            tableItem.setModel(getModelKategori());
+
+            tableUser.setModel(getStock());
+
         } else {
-            //            tableItem.setModel(getModelSearch(txtCari.getText()));
+
+            tableUser.setModel(
+                    getModelSearch(
+                            txtSearch.getText()));
+
         }
     }//GEN-LAST:event_txtSearchKeyReleased
 
@@ -334,25 +626,41 @@ public class StockForm extends javax.swing.JDialog {
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         // TODO add your handling code here:
+        int jawab =
+                javax.swing.JOptionPane.showConfirmDialog(
+                        null,
+                        "Are you sure for delete?",
+                        "Confirm",
+                        javax.swing.JOptionPane.YES_NO_OPTION);
+
+        if (jawab ==
+                javax.swing.JOptionPane.YES_OPTION) {
+
+            deleteData();
+            clearData();
+
+        }
+
+        tableUser.setModel(getStock());
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         // TODO add your handling code here:
-        //        clearData();
+        clearData();
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
-        //        updateData();
-        //        tableItem.setModel(getModelKategori());
-        //        clearData();
+        updateData();
+        tableUser.setModel(getStock());
+        clearData();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
-        //        insertData();
-        //        tableItem.setModel(getModelKategori());
-        //        clearData();
+        insertData();
+        tableUser.setModel(getStock());
+        clearData();
     }//GEN-LAST:event_btnAddActionPerformed
 
     /**

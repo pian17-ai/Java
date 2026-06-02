@@ -34,43 +34,136 @@ public class ItemFormJava extends javax.swing.JDialog {
         connDB = ConnectionClass.connectionDB();
     }
 
-    public DefaultTableModel getModelItem(){
-        
-        Object [][] data = null;
-        
-        try{
-           String query = "SELECT item.nama AS nama_kategori,item.id,item.nama,item.harga "
-                   + "FROM kategori INNER JOIN item "
-                   + "ON kategori.id= item.kategori_id  "
-                   + "ORDER BY item.id";
-           
-            ps = connDB.prepareStatement(query);
-            rs = ps.executeQuery();
-            rs.last();
-            int i = rs.getRow();
-            rs.beforeFirst();
-            
-            data = new Object [i][4];
-            
-            i = 0;
-            
-            while(rs.next()){
-                data[i][0] = rs.getString("nama_kategori");
-                data[i][1] = rs.getString("id");
-                data[i][2] = rs.getString("nama");
-                data[i][3] = rs.getString("harga");
-                i++;
-            }
-        
-        } catch(SQLException e) {
-            System.out.println("model item error" + e.getMessage());
-        
+    public DefaultTableModel getModelItem() {
+
+    Object[][] data = null;
+
+    try {
+        String query = """
+                       SELECT item.id,
+                              kategori.nama AS nama_kategori,
+                              item.nama,
+                              item.harga
+                       FROM item
+                       INNER JOIN kategori
+                       ON kategori.id = item.kategori_id
+                       """;
+
+        ps = connDB.prepareStatement(query,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
+
+        rs = ps.executeQuery();
+
+        rs.last();
+        int i = rs.getRow();
+        rs.beforeFirst();
+
+        data = new Object[i][4];
+
+        i = 0;
+
+        while (rs.next()) {
+            data[i][0] = rs.getString("id");
+            data[i][1] = rs.getString("nama_kategori");
+            data[i][2] = rs.getString("nama");
+            data[i][3] = rs.getString("harga");
+            i++;
         }
-        String[] judulTabel = {"NAMA KATEGORI", "ID ITEM", "NAMA ITEM", "HARGA"};
-        tabelModel = new DefaultTableModel(data, judulTabel);
-        return tabelModel;
+
+    } catch (SQLException e) {
+        System.out.println("model item error : " + e.getMessage());
     }
-             
+
+    String[] judulTabel = {
+        "ID ITEM",
+        "NAMA KATEGORI",
+        "NAMA ITEM",
+        "HARGA"
+    };
+
+    tabelModel = new DefaultTableModel(data, judulTabel);
+
+    return tabelModel;
+}
+    
+    public void insertData() {
+    try {
+
+        String kategoriId =
+                comboCategory.getSelectedItem().toString().split("-")[0];
+
+        String query =
+                "INSERT INTO item VALUES(?,?,?,?)";
+
+        ps = connDB.prepareStatement(query);
+
+        ps.setString(1, kategoriId);
+        ps.setString(2, null);
+        ps.setString(3, txtNama.getText());
+        ps.setString(4, txtHarga.getText());
+
+        ps.executeUpdate();
+
+        JOptionPane.showMessageDialog(null,
+                "Add data success");
+
+    } catch (SQLException e) {
+        System.out.println("Insert error : " + e.getMessage());
+        JOptionPane.showMessageDialog(null,
+                "Insert data error");
+    }
+}
+ 
+    public void updateData() {
+    try {
+
+        String kategoriId =
+                comboCategory.getSelectedItem().toString().split("-")[0];
+
+        String query =
+                "UPDATE item SET kategori_id=?, nama=?, harga=? WHERE id=?";
+
+        ps = connDB.prepareStatement(query);
+
+        ps.setString(1, kategoriId);
+        ps.setString(2, txtNama.getText());
+        ps.setString(3, txtHarga.getText());
+        ps.setString(4, txtId.getText());
+
+        ps.executeUpdate();
+
+        JOptionPane.showMessageDialog(null,
+                "Update data success");
+
+    } catch (SQLException e) {
+        System.out.println("Update error : " + e.getMessage());
+        JOptionPane.showMessageDialog(null,
+                "Update data error");
+    }
+}
+    
+    public void deleteData() {
+    try {
+
+        String query =
+                "DELETE FROM item WHERE id=?";
+
+        ps = connDB.prepareStatement(query);
+
+        ps.setString(1, txtId.getText());
+
+        ps.executeUpdate();
+
+        JOptionPane.showMessageDialog(null,
+                "Delete data success");
+
+    } catch (SQLException e) {
+        System.out.println("Delete error : " + e.getMessage());
+        JOptionPane.showMessageDialog(null,
+                "Delete data error");
+    }
+}
 
     public void comboKategori(){
         
@@ -100,46 +193,110 @@ public class ItemFormJava extends javax.swing.JDialog {
     }
     
     public void showData() {
-        Object[][] data = null;
-        
-        try {
-            String query = "SELECT kategori.nama AS nama_kategori, item.kategori_id, item.nama, item.harga, FROM kategori INNER JOIN item ON kategori.id = item.kategori_id WHERE item.id=?";
-            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setString(1, txtId.getText());
-            rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                comboCategory.setSelectedItem(rs.getString("kategori_id") + "-" + rs.getString("nama_kategori"));
-                
-                txtNama.setText(rs.getString("nama"));
-                txtHarga.setText(rs.getString("harga"));
-            } else {
-                clearData();
-            }
-        } catch(SQLException e) {
-            System.out.println("Show data error : " + e.getMessage());
-        }
-    }
-        
-//        public void showData() {
-//        try {
-//            String query = "SELECT * from kategori WHERE id=?";
-//            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-////            ps = connDB.prepareStatement(query);
-//            ps.setString(1, txtId.getText());
-//            rs = ps.executeQuery();
-//
-//            if (rs.next()) {
-//                txtNama.setText(rs.getString("nama"));
-//            } else {
-//
-//            }
-//        } catch (SQLException e) {
-//            System.out.println("Show data error : " + e.getMessage());
-//        }
-//    }
 
-//    
+    try {
+
+        String query = """
+                       SELECT kategori.nama AS nama_kategori,
+                              item.kategori_id,
+                              item.nama,
+                              item.harga
+                       FROM item
+                       INNER JOIN kategori
+                       ON kategori.id = item.kategori_id
+                       WHERE item.id=?
+                       """;
+
+        ps = connDB.prepareStatement(query,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
+
+        ps.setString(1, txtId.getText());
+
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+
+            comboCategory.setSelectedItem(
+                    rs.getString("kategori_id")
+                    + "-" +
+                    rs.getString("nama_kategori")
+            );
+
+            txtNama.setText(rs.getString("nama"));
+            txtHarga.setText(rs.getString("harga"));
+
+        } else {
+            clearData();
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Show data error : "
+                + e.getMessage());
+    }
+}
+    
+    public DefaultTableModel getModelSearch(String search) {
+
+    Object[][] data = null;
+
+    try {
+
+        String query = """
+                       SELECT item.id,
+                              kategori.nama AS nama_kategori,
+                              item.nama,
+                              item.harga
+                       FROM item
+                       INNER JOIN kategori
+                       ON kategori.id = item.kategori_id
+                       WHERE item.id LIKE ?
+                          OR item.nama LIKE ?
+                          OR kategori.nama LIKE ?
+                       """;
+
+        ps = connDB.prepareStatement(query,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
+
+        ps.setString(1, "%" + search + "%");
+        ps.setString(2, "%" + search + "%");
+        ps.setString(3, "%" + search + "%");
+
+        rs = ps.executeQuery();
+
+        rs.last();
+        int i = rs.getRow();
+        rs.beforeFirst();
+
+        data = new Object[i][4];
+
+        i = 0;
+
+        while (rs.next()) {
+            data[i][0] = rs.getString("id");
+            data[i][1] = rs.getString("nama_kategori");
+            data[i][2] = rs.getString("nama");
+            data[i][3] = rs.getString("harga");
+            i++;
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Search error : "
+                + e.getMessage());
+    }
+
+    String[] titleTable = {
+        "ID ITEM",
+        "NAMA KATEGORI",
+        "NAMA ITEM",
+        "HARGA"
+    };
+
+    tabelModel = new DefaultTableModel(data, titleTable);
+
+    return tabelModel;
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -403,31 +560,39 @@ public class ItemFormJava extends javax.swing.JDialog {
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
-//        insertData();
-//        tableItem.setModel(getModelKategori());
-//        clearData();
+        insertData();
+        tableItem.setModel(getModelItem());
+        clearData();
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
-//        updateData();
-//        tableItem.setModel(getModelKategori());
-//        clearData();
+        updateData();
+        tableItem.setModel(getModelItem());
+        clearData();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         // TODO add your handling code here:
-//        clearData();
+        clearData();
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         // TODO add your handling code here:
-        int jawab = JOptionPane.showConfirmDialog(null, "Are you sure for delete?", "Confirm", JOptionPane.YES_NO_OPTION);
-        if (jawab == JOptionPane.YES_OPTION) {
-//            deleteData();
-//            clearData();
-        }
-//        tableItem.setModel(getModelKategori());
+    int jawab = JOptionPane.showConfirmDialog(
+            null,
+            "Are you sure for delete?",
+            "Confirm",
+            JOptionPane.YES_NO_OPTION);
+
+    if (jawab == JOptionPane.YES_OPTION) {
+
+        deleteData();
+        clearData();
+
+    }
+
+    tableItem.setModel(getModelItem());
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void txtHargaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHargaActionPerformed
@@ -443,24 +608,36 @@ public class ItemFormJava extends javax.swing.JDialog {
     }//GEN-LAST:event_txtCariActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        // TODO add your handling code here:
-//        tableItem.setModel(getModelKategori());
+//         TODO add your handling code here:
+        tableItem.setModel(getModelItem());
         comboKategori();
+        txtId.setEditable(false);
     }//GEN-LAST:event_formWindowOpened
 
     private void tableItemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableItemMouseClicked
         // TODO add your handling code here:
-        txtId.setText(tabelModel.getValueAt(tableItem.getSelectedRow(), 0).toString());
+        txtId.setText(
+                tabelModel.getValueAt(
+                        tableItem.getSelectedRow(),
+                        0
+                ).toString());
+
         showData();
     }//GEN-LAST:event_tableItemMouseClicked
 
     private void txtCariKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCariKeyReleased
         // TODO add your handling code here:
-        if (txtCari.getText().trim().equals("")) {
-//            tableItem.setModel(getModelKategori());
-        } else {
-//            tableItem.setModel(getModelSearch(txtCari.getText()));
-        }
+
+    if (txtCari.getText().trim().equals("")) {
+
+        tableItem.setModel(getModelItem());
+
+    } else {
+
+        tableItem.setModel(
+                getModelSearch(txtCari.getText()));
+
+    }
     }//GEN-LAST:event_txtCariKeyReleased
 
     private void txtNamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNamaActionPerformed

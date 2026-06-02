@@ -27,8 +27,12 @@ public class UserForm extends javax.swing.JDialog {
     public UserForm() {
         initComponents();
         connDB = ConnectionClass.connectionDB();
-        
+
         tableUser.setModel(getUsers());
+
+        comboLevel();
+
+        txtId.setEditable(false);
     }
     
     public DefaultTableModel getUsers() {
@@ -80,23 +84,292 @@ public class UserForm extends javax.swing.JDialog {
     return tabelModel;
 }
     
-//    public void showData() {
-//        try {
-//            String query = "SELECT * from users WHERE id=?";
-//            ps = connDB.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-////            ps = connDB.prepareStatement(query);
-//            ps.setString(1, txtId.getText());
-//            rs = ps.executeQuery();
-//
-//            if (rs.next()) {
-//                txtName.setText(rs.getString("nama"));
-//            } else {
-//
-//            }
-//        } catch (SQLException e) {
-//            System.out.println("Show data error : " + e.getMessage());
-//        }
-//    }
+    public void comboLevel() {
+
+    try {
+
+        String query = "SELECT id, nama FROM level";
+
+        ps = connDB.prepareStatement(query);
+        rs = ps.executeQuery();
+
+        comboLevel.removeAllItems();
+        comboLevel.addItem("Pilih");
+
+        while (rs.next()) {
+
+            comboLevel.addItem(
+                    rs.getString("id")
+                    + "-" +
+                    rs.getString("nama")
+            );
+
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Combo level error : "
+                + e.getMessage());
+
+    }
+
+}
+    
+    public void clearData() {
+
+    txtId.setText("");
+    txtUsername.setText("");
+    txtPassword.setText("");
+    txtName.setText("");
+    txtSearch.setText("");
+
+    comboLevel.setSelectedIndex(0);
+
+}
+    
+    public void showData() {
+
+    try {
+
+        String query =
+                """
+                SELECT user.*,
+                       level.nama AS nama_level
+                FROM user
+                INNER JOIN level
+                ON level.id = user.level_id
+                WHERE user.id=?
+                """;
+
+        ps = connDB.prepareStatement(
+                query,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
+
+        ps.setString(1, txtId.getText());
+
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+
+            comboLevel.setSelectedItem(
+                    rs.getString("level_id")
+                    + "-"
+                    + rs.getString("nama_level")
+            );
+
+            txtUsername.setText(
+                    rs.getString("username"));
+
+            txtPassword.setText(
+                    rs.getString("password"));
+
+            txtName.setText(
+                    rs.getString("nama"));
+
+        } else {
+
+            clearData();
+
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Show data error : "
+                + e.getMessage());
+
+    }
+
+}
+    
+    public void insertData() {
+
+    try {
+
+        String levelId =
+                comboLevel.getSelectedItem()
+                .toString()
+                .split("-")[0];
+
+        String query =
+                "INSERT INTO user VALUES(?,?,?,?,?)";
+
+        ps = connDB.prepareStatement(query);
+
+        ps.setString(1, null);
+        ps.setString(2, levelId);
+        ps.setString(3, txtUsername.getText());
+        ps.setString(4, txtPassword.getText());
+        ps.setString(5, txtName.getText());
+
+        ps.executeUpdate();
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Add data success");
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Insert error : "
+                + e.getMessage());
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Insert data error");
+
+    }
+
+}
+    
+    public void updateData() {
+
+    try {
+
+        String levelId =
+                comboLevel.getSelectedItem()
+                .toString()
+                .split("-")[0];
+
+        String query =
+                """
+                UPDATE user
+                SET level_id=?,
+                    username=?,
+                    password=?,
+                    nama=?
+                WHERE id=?
+                """;
+
+        ps = connDB.prepareStatement(query);
+
+        ps.setString(1, levelId);
+        ps.setString(2, txtUsername.getText());
+        ps.setString(3, txtPassword.getText());
+        ps.setString(4, txtName.getText());
+        ps.setString(5, txtId.getText());
+
+        ps.executeUpdate();
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Update success");
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Update error : "
+                + e.getMessage());
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Update error");
+
+    }
+
+}
+    
+    public void deleteData() {
+
+    try {
+
+        String query =
+                "DELETE FROM user WHERE id=?";
+
+        ps = connDB.prepareStatement(query);
+
+        ps.setString(1, txtId.getText());
+
+        ps.executeUpdate();
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Delete success");
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Delete error : "
+                + e.getMessage());
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Delete error");
+
+    }
+
+}
+    
+    public DefaultTableModel getModelSearch(String search) {
+
+    Object[][] data = null;
+
+    try {
+
+        String query =
+                """
+                SELECT *
+                FROM user
+                WHERE id LIKE ?
+                   OR username LIKE ?
+                   OR nama LIKE ?
+                """;
+
+        ps = connDB.prepareStatement(
+                query,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
+
+        ps.setString(1, "%" + search + "%");
+        ps.setString(2, "%" + search + "%");
+        ps.setString(3, "%" + search + "%");
+
+        rs = ps.executeQuery();
+
+        rs.last();
+        int i = rs.getRow();
+        rs.beforeFirst();
+
+        data = new Object[i][5];
+
+        i = 0;
+
+        while (rs.next()) {
+
+            data[i][0] = rs.getString("id");
+            data[i][1] = rs.getString("level_id");
+            data[i][2] = rs.getString("username");
+            data[i][3] = rs.getString("password");
+            data[i][4] = rs.getString("nama");
+
+            i++;
+
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Search error : "
+                + e.getMessage());
+
+    }
+
+    String[] judul = {
+        "ID",
+        "LEVEL ID",
+        "USERNAME",
+        "PASSWORD",
+        "NAMA"
+    };
+
+    tabelModel =
+            new DefaultTableModel(data, judul);
+
+    return tabelModel;
+
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -345,25 +618,45 @@ public class UserForm extends javax.swing.JDialog {
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
-        //        insertData();
-        //        tableItem.setModel(getModelKategori());
-        //        clearData();
+        insertData();
+
+        tableUser.setModel(getUsers());
+
+        clearData();
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
-        //        updateData();
-        //        tableItem.setModel(getModelKategori());
-        //        clearData();
+        updateData();
+
+        tableUser.setModel(getUsers());
+
+        clearData();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         // TODO add your handling code here:
-        //        clearData();
+        clearData();
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         // TODO add your handling code here:
+        int jawab =
+                javax.swing.JOptionPane.showConfirmDialog(
+                        null,
+                        "Are you sure for delete?",
+                        "Confirm",
+                        javax.swing.JOptionPane.YES_NO_OPTION);
+
+        if (jawab ==
+                javax.swing.JOptionPane.YES_OPTION) {
+
+            deleteData();
+            clearData();
+
+        }
+
+        tableUser.setModel(getUsers());
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void txtPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPasswordActionPerformed
@@ -381,14 +674,27 @@ public class UserForm extends javax.swing.JDialog {
     private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
         // TODO add your handling code here:
         if (txtSearch.getText().trim().equals("")) {
-            //            tableItem.setModel(getModelKategori());
+
+            tableUser.setModel(getUsers());
+
         } else {
-            //            tableItem.setModel(getModelSearch(txtCari.getText()));
+
+            tableUser.setModel(
+                    getModelSearch(
+                            txtSearch.getText()));
+
         }
     }//GEN-LAST:event_txtSearchKeyReleased
 
     private void tableUserMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableUserMouseClicked
         // TODO add your handling code here:
+        txtId.setText(
+                tabelModel.getValueAt(
+                        tableUser.getSelectedRow(),
+                        0
+                ).toString());
+
+        showData();
     }//GEN-LAST:event_tableUserMouseClicked
 
     private void txtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsernameActionPerformed
