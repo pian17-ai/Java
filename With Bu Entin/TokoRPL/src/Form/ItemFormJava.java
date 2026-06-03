@@ -39,15 +39,14 @@ public class ItemFormJava extends javax.swing.JDialog {
     Object[][] data = null;
 
     try {
-        String query = """
-                       SELECT item.id,
-                              kategori.nama AS nama_kategori,
-                              item.nama,
-                              item.harga
-                       FROM item
-                       INNER JOIN kategori
-                       ON kategori.id = item.kategori_id
-                       """;
+String query =
+    "SELECT item.id, " +
+    "kategori.nama AS nama_kategori, " +
+    "item.nama, " +
+    "item.harga " +
+    "FROM item " +
+    "INNER JOIN kategori " +
+    "ON kategori.id = item.kategori_id";
 
         ps = connDB.prepareStatement(query,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -196,16 +195,15 @@ public class ItemFormJava extends javax.swing.JDialog {
 
     try {
 
-        String query = """
-                       SELECT kategori.nama AS nama_kategori,
-                              item.kategori_id,
-                              item.nama,
-                              item.harga
-                       FROM item
-                       INNER JOIN kategori
-                       ON kategori.id = item.kategori_id
-                       WHERE item.id=?
-                       """;
+String query =
+    "SELECT kategori.nama AS nama_kategori, " +
+    "item.kategori_id, " +
+    "item.nama, " +
+    "item.harga " +
+    "FROM item " +
+    "INNER JOIN kategori " +
+    "ON kategori.id = item.kategori_id " +
+    "WHERE item.id=?";
 
         ps = connDB.prepareStatement(query,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -242,18 +240,17 @@ public class ItemFormJava extends javax.swing.JDialog {
 
     try {
 
-        String query = """
-                       SELECT item.id,
-                              kategori.nama AS nama_kategori,
-                              item.nama,
-                              item.harga
-                       FROM item
-                       INNER JOIN kategori
-                       ON kategori.id = item.kategori_id
-                       WHERE item.id LIKE ?
-                          OR item.nama LIKE ?
-                          OR kategori.nama LIKE ?
-                       """;
+String query =
+    "SELECT item.id, " +
+    "kategori.nama AS nama_kategori, " +
+    "item.nama, " +
+    "item.harga " +
+    "FROM item " +
+    "INNER JOIN kategori " +
+    "ON kategori.id = item.kategori_id " +
+    "WHERE item.id LIKE ? " +
+    "OR item.nama LIKE ? " +
+    "OR kategori.nama LIKE ?";
 
         ps = connDB.prepareStatement(query,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,

@@ -132,15 +132,13 @@ public class UserForm extends javax.swing.JDialog {
 
     try {
 
-        String query =
-                """
-                SELECT user.*,
-                       level.nama AS nama_level
-                FROM user
-                INNER JOIN level
-                ON level.id = user.level_id
-                WHERE user.id=?
-                """;
+String query =
+    "SELECT user.*, " +
+    "level.nama AS nama_level " +
+    "FROM user " +
+    "INNER JOIN level " +
+    "ON level.id = user.level_id " +
+    "WHERE user.id=?";
 
         ps = connDB.prepareStatement(
                 query,
@@ -232,16 +230,13 @@ public class UserForm extends javax.swing.JDialog {
                 comboLevel.getSelectedItem()
                 .toString()
                 .split("-")[0];
-
-        String query =
-                """
-                UPDATE user
-                SET level_id=?,
-                    username=?,
-                    password=?,
-                    nama=?
-                WHERE id=?
-                """;
+String query =
+    "UPDATE user SET " +
+    "level_id=?, " +
+    "username=?, " +
+    "password=?, " +
+    "nama=? " +
+    "WHERE id=?";
 
         ps = connDB.prepareStatement(query);
 
@@ -307,15 +302,12 @@ public class UserForm extends javax.swing.JDialog {
     Object[][] data = null;
 
     try {
-
-        String query =
-                """
-                SELECT *
-                FROM user
-                WHERE id LIKE ?
-                   OR username LIKE ?
-                   OR nama LIKE ?
-                """;
+        
+String query =
+    "SELECT * FROM user " +
+    "WHERE id LIKE ? " +
+    "OR username LIKE ? " +
+    "OR nama LIKE ?";
 
         ps = connDB.prepareStatement(
                 query,

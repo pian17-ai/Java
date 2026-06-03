@@ -126,15 +126,13 @@ public class StockForm extends javax.swing.JDialog {
 
     try {
 
-        String query =
-                """
-                SELECT stok.*,
-                       item.nama AS nama_item
-                FROM stok
-                INNER JOIN item
-                ON item.id = stok.item_id
-                WHERE stok.id=?
-                """;
+String query =
+    "SELECT stok.*, " +
+    "item.nama AS nama_item " +
+    "FROM stok " +
+    "INNER JOIN item " +
+    "ON item.id = stok.item_id " +
+    "WHERE stok.id=?";
 
         ps = connDB.prepareStatement(
                 query,
@@ -222,14 +220,12 @@ public class StockForm extends javax.swing.JDialog {
                 .toString()
                 .split("-")[0];
 
-        String query =
-                """
-                UPDATE stok
-                SET item_id=?,
-                    quantity=?,
-                    tanggal_update=?
-                WHERE id=?
-                """;
+String query =
+    "UPDATE stok SET " +
+    "item_id=?, " +
+    "quantity=?, " +
+    "tanggal_update=? " +
+    "WHERE id=?";
 
         ps = connDB.prepareStatement(query);
 
@@ -295,17 +291,15 @@ public class StockForm extends javax.swing.JDialog {
 
     try {
 
-        String query =
-                """
-                SELECT stok.*,
-                       item.nama AS nama_item
-                FROM stok
-                INNER JOIN item
-                ON item.id = stok.item_id
-                WHERE stok.id LIKE ?
-                   OR item.nama LIKE ?
-                   OR stok.quantity LIKE ?
-                """;
+String query =
+    "SELECT stok.*, " +
+    "item.nama AS nama_item " +
+    "FROM stok " +
+    "INNER JOIN item " +
+    "ON item.id = stok.item_id " +
+    "WHERE stok.id LIKE ? " +
+    "OR item.nama LIKE ? " +
+    "OR stok.quantity LIKE ?";
 
         ps = connDB.prepareStatement(
                 query,
@@ -384,7 +378,7 @@ public class StockForm extends javax.swing.JDialog {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         txtUsername = new javax.swing.JTextField();
-        comboLevel = new javax.swing.JComboBox<>();
+        comboLevel = new javax.swing.JComboBox<String>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -409,33 +403,29 @@ public class StockForm extends javax.swing.JDialog {
         btnAdd.setFont(new java.awt.Font("Fira Sans", 1, 18)); // NOI18N
         btnAdd.setText("Add");
         btnAdd.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        btnAdd.addActionListener(this::btnAddActionPerformed);
+        btnAdd.addActionListener();
 
         btnUpdate.setFont(new java.awt.Font("Fira Sans", 1, 18)); // NOI18N
         btnUpdate.setText("Update");
         btnUpdate.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        btnUpdate.addActionListener(this::btnUpdateActionPerformed);
+        btnUpdate.addActionListener();
 
         btnCancel.setFont(new java.awt.Font("Fira Sans", 1, 18)); // NOI18N
         btnCancel.setText("Cancel");
         btnCancel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        btnCancel.addActionListener(this::btnCancelActionPerformed);
+        btnCancel.addActionListener();
 
         btnDelete.setFont(new java.awt.Font("Fira Sans", 1, 18)); // NOI18N
         btnDelete.setText("Delete");
         btnDelete.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        btnDelete.addActionListener(this::btnDeleteActionPerformed);
+        btnDelete.addActionListener();
 
-        txtPassword.addActionListener(this::txtPasswordActionPerformed);
+        txtPassword.addActionListener();
 
-        txtId.addActionListener(this::txtIdActionPerformed);
+        txtId.addActionListener();
 
-        txtSearch.addActionListener(this::txtSearchActionPerformed);
-        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                txtSearchKeyReleased(evt);
-            }
-        });
+        txtSearch.addActionListener();
+        txtSearch.addKeyListener();
 
         tableUser.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -448,11 +438,7 @@ public class StockForm extends javax.swing.JDialog {
                 "Id", "Item Id", "Quantity", "Update Date"
             }
         ));
-        tableUser.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableUserMouseClicked(evt);
-            }
-        });
+        tableUser.addMouseListener();
         jScrollPane1.setViewportView(tableUser);
 
         jLabel6.setFont(new java.awt.Font("Fira Sans", 1, 24)); // NOI18N
@@ -463,9 +449,9 @@ public class StockForm extends javax.swing.JDialog {
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("Update Date");
 
-        txtUsername.addActionListener(this::txtUsernameActionPerformed);
+        txtUsername.addActionListener();
 
-        comboLevel.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboLevel.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -551,7 +537,7 @@ public class StockForm extends javax.swing.JDialog {
                         .addComponent(btnCancel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnDelete)
-                        .addContainerGap(296, Short.MAX_VALUE))
+                        .addContainerGap(278, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))

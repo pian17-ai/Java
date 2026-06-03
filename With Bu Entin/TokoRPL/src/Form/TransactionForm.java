@@ -53,20 +53,16 @@ public class TransactionForm extends javax.swing.JDialog {
 
     try {
 
-        String query =
-        """
-        SELECT
-        kategori.nama kategori,
-        item.id,
-        item.nama,
-        stok.quantity,
-        item.harga
-        FROM item
-        JOIN kategori
-        ON kategori.id=item.kategori_id
-        JOIN stok
-        ON stok.item_id=item.id
-        """;
+String query =
+    "SELECT " +
+    "kategori.nama AS kategori, " +
+    "item.id, " +
+    "item.nama, " +
+    "stok.quantity, " +
+    "item.harga " +
+    "FROM item " +
+    "JOIN kategori ON kategori.id = item.kategori_id " +
+    "JOIN stok ON stok.item_id = item.id";
 
         ps = connDB.prepareStatement(
                 query,
@@ -406,12 +402,10 @@ public class TransactionForm extends javax.swing.JDialog {
             );
         }
 
-        String transaksi =
-        """
-        INSERT INTO transaksi
-        (user_id,total_harga,jumlah_item,tanggal_transaksi)
-        VALUES(?,?,?,CURDATE())
-        """;
+String transaksi =
+    "INSERT INTO transaksi " +
+    "(user_id, total_harga, jumlah_item, tanggal_transaksi) " +
+    "VALUES (?, ?, ?, CURDATE())";
 
         ps = connDB.prepareStatement(
                 transaksi,
@@ -442,12 +436,10 @@ public class TransactionForm extends javax.swing.JDialog {
             int subtotal = Integer.parseInt(
                     cartModel.getValueAt(i,2).toString());
 
-            String detail =
-            """
-            INSERT INTO detail_transaksi
-            (transaksi_id,item_id,quantity,subtotal_harga)
-            VALUES(?,?,?,?)
-            """;
+String detail =
+    "INSERT INTO detail_transaksi " +
+    "(transaksi_id, item_id, quantity, subtotal_harga) " +
+    "VALUES (?, ?, ?, ?)";
 
             ps = connDB.prepareStatement(detail);
 
@@ -457,13 +449,11 @@ public class TransactionForm extends javax.swing.JDialog {
             ps.setInt(4,subtotal);
 
             ps.executeUpdate();
-
-            String stok =
-            """
-            UPDATE stok
-            SET quantity = quantity - ?
-            WHERE item_id = ?
-            """;
+            
+String stok =
+    "UPDATE stok " +
+    "SET quantity = quantity - ? " +
+    "WHERE item_id = ?";
 
             ps = connDB.prepareStatement(stok);
 
