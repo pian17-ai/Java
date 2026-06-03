@@ -4,11 +4,23 @@
  */
 package Form;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author pian
  */
 public class TransactionForm extends javax.swing.JDialog {
+    
+    private PreparedStatement ps;
+    private ResultSet rs;
+    private final java.sql.Connection connDB;
+    DefaultTableModel cartModel;
+    private DefaultTableModel tableModel;
+    
+    private int hargaBarang = 0;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TransactionForm.class.getName());
 
@@ -16,9 +28,88 @@ public class TransactionForm extends javax.swing.JDialog {
      * Creates new form TransactionForm
      */
     public TransactionForm(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
-        initComponents();
+    super(parent, modal);
+    initComponents();
+
+    connDB = ConnectionClass.connectionDB();
+
+    tableTransaction.setModel(getItems());
+
+    cartModel = new DefaultTableModel(
+        new Object[][]{},
+        new String[]{
+            "Item Id",
+            "Quantity",
+            "Subtotal"
+        }
+    );
+
+    tableCart.setModel(cartModel);
+}
+    
+    public DefaultTableModel getItems() {
+
+    Object[][] data = null;
+
+    try {
+
+        String query =
+        """
+        SELECT
+        kategori.nama kategori,
+        item.id,
+        item.nama,
+        stok.quantity,
+        item.harga
+        FROM item
+        JOIN kategori
+        ON kategori.id=item.kategori_id
+        JOIN stok
+        ON stok.item_id=item.id
+        """;
+
+        ps = connDB.prepareStatement(
+                query,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
+
+        rs = ps.executeQuery();
+
+        rs.last();
+        int row = rs.getRow();
+        rs.beforeFirst();
+
+        data = new Object[row][5];
+
+        int i = 0;
+
+        while(rs.next()){
+
+            data[i][0] = rs.getString("kategori");
+            data[i][1] = rs.getString("id");
+            data[i][2] = rs.getString("nama");
+            data[i][3] = rs.getString("quantity");
+            data[i][4] = rs.getString("harga");
+
+            i++;
+        }
+
+    } catch(Exception e){
+        System.out.println(e.getMessage());
     }
+
+    return new DefaultTableModel(
+            data,
+            new String[]{
+                "Kategori",
+                "Item Id",
+                "Item Name",
+                "Stock",
+                "Harga"
+            });
+}
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -116,7 +207,7 @@ public class TransactionForm extends javax.swing.JDialog {
                 {null, null, null, null, null}
             },
             new String [] {
-                "Id", "Item Id", "Item Name", "Quantity", "Update Date"
+                "Kategori", "Item Id", "Item Name", "Stok", "Harga"
             }
         ));
         tableTransaction.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -278,21 +369,140 @@ public class TransactionForm extends javax.swing.JDialog {
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
-        //        insertData();
-        //        tableItem.setModel(getModelKategori());
-        //        clearData();
+        int qty = Integer.parseInt(
+                txtUsername.getText()
+        );
+
+        int subtotal = qty * hargaBarang;
+
+        txtSearch1.setText(
+                String.valueOf(subtotal)
+        );
+
+        cartModel.addRow(
+            new Object[]{
+                txtSearch3.getText(),
+                qty,
+                subtotal
+            }
+        );
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
-        //        updateData();
-        //        tableItem.setModel(getModelKategori());
-        //        clearData();
+    try {
+
+        int totalHarga = 0;
+        int jumlahItem = 0;
+
+        for(int i=0;i<cartModel.getRowCount();i++){
+
+            totalHarga += Integer.parseInt(
+                    cartModel.getValueAt(i,2).toString()
+            );
+
+            jumlahItem += Integer.parseInt(
+                    cartModel.getValueAt(i,1).toString()
+            );
+        }
+
+        String transaksi =
+        """
+        INSERT INTO transaksi
+        (user_id,total_harga,jumlah_item,tanggal_transaksi)
+        VALUES(?,?,?,CURDATE())
+        """;
+
+        ps = connDB.prepareStatement(
+                transaksi,
+                PreparedStatement.RETURN_GENERATED_KEYS);
+
+        ps.setInt(1,1);
+        ps.setInt(2,totalHarga);
+        ps.setInt(3,jumlahItem);
+
+        ps.executeUpdate();
+
+        rs = ps.getGeneratedKeys();
+
+        int transaksiId = 0;
+
+        if(rs.next()){
+            transaksiId = rs.getInt(1);
+        }
+
+        for(int i=0;i<cartModel.getRowCount();i++){
+
+            int itemId = Integer.parseInt(
+                    cartModel.getValueAt(i,0).toString());
+
+            int qty = Integer.parseInt(
+                    cartModel.getValueAt(i,1).toString());
+
+            int subtotal = Integer.parseInt(
+                    cartModel.getValueAt(i,2).toString());
+
+            String detail =
+            """
+            INSERT INTO detail_transaksi
+            (transaksi_id,item_id,quantity,subtotal_harga)
+            VALUES(?,?,?,?)
+            """;
+
+            ps = connDB.prepareStatement(detail);
+
+            ps.setInt(1,transaksiId);
+            ps.setInt(2,itemId);
+            ps.setInt(3,qty);
+            ps.setInt(4,subtotal);
+
+            ps.executeUpdate();
+
+            String stok =
+            """
+            UPDATE stok
+            SET quantity = quantity - ?
+            WHERE item_id = ?
+            """;
+
+            ps = connDB.prepareStatement(stok);
+
+            ps.setInt(1,qty);
+            ps.setInt(2,itemId);
+
+            ps.executeUpdate();
+        }
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Transaksi Berhasil");
+
+    } catch(Exception e){
+
+        javax.swing.JOptionPane.showMessageDialog(
+                null,
+                e.getMessage());
+
+    }
+    
+    tableTransaction.setModel(getItems());
+    cartModel.setRowCount(0);
+    clearData();
+
     }//GEN-LAST:event_btnUpdateActionPerformed
 
+    public void clearData() {
+    txtSearch.setText("");
+    txtSearch1.setText("");
+    txtSearch2.setText("");
+    txtSearch3.setText("");
+    txtUsername.setText("");
+}
+    
+    
+    
     private void btnCancel2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancel2ActionPerformed
         // TODO add your handling code here:
-        //        clearData();
     }//GEN-LAST:event_btnCancel2ActionPerformed
 
     private void btnCancel1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancel1ActionPerformed
@@ -305,11 +515,6 @@ public class TransactionForm extends javax.swing.JDialog {
 
     private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
         // TODO add your handling code here:
-        if (txtSearch.getText().trim().equals("")) {
-            //            tableItem.setModel(getModelKategori());
-        } else {
-            //            tableItem.setModel(getModelSearch(txtCari.getText()));
-        }
     }//GEN-LAST:event_txtSearchKeyReleased
 
     private void txtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsernameActionPerformed
@@ -318,6 +523,16 @@ public class TransactionForm extends javax.swing.JDialog {
 
     private void tableTransactionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableTransactionMouseClicked
         // TODO add your handling code here:
+        
+        int row = tableTransaction.getSelectedRow();
+
+        txtSearch3.setText(
+                tableTransaction.getValueAt(row,1).toString()
+        );
+
+        hargaBarang = Integer.parseInt(
+                tableTransaction.getValueAt(row,4).toString()
+        );
     }//GEN-LAST:event_tableTransactionMouseClicked
 
     private void tableCartMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableCartMouseClicked
